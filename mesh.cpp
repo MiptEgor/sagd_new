@@ -9,11 +9,13 @@ mesh::mesh(const_values cv)
 	, face(nx + 1)
 	{
 		cell[0].x = 0;
+		cell[0].eta_l = cv.eta_l;
+		cell[0].eta_g = cv.eta_g;
 		for (int i = 1; i < nx; ++i)
 		{
 			cell[i].x = cell[i - 1].x + dx;
-			cell[i].eta_l = 1e-3;
-			cell[i].eta_g = 18.3e-6;
+			cell[i].eta_l = cv.eta_l;
+			cell[i].eta_g = cv.eta_g;
 		}
 
 	}
@@ -23,10 +25,13 @@ void mesh::print_lay(int n)
 	char buf[128];
 	sprintf(buf,"./out/output%07d.csv",n);
 	fs.open(buf, std::fstream::out);
-	fs << "x, eta_l, eta_g" << std::endl;
+	fs << "x, z, eta_l, eta_l+eta_g, 1, W_l, W_g" << std::endl;
+	double z = 0;
 	for (int i = 0; i < nx; ++i)
 	{
-		fs<<cell[i].x <<"," <<cell[i].theta_l() <<"," <<cell[i].theta_g() <<std::endl;
+		z = z + dx * (1./cell[i].theta_s()); //Эйлерова координата
+		fs<<cell[i].x <<","<< z <<"," <<cell[i].theta_l() <<"," <<cell[i].theta_g()+cell[i].theta_l() 
+		<<","<<1. <<","<< face[i].W_l<<","<< face[i].W_g<<   std::endl;
 	}
 	fs.close();	
 }

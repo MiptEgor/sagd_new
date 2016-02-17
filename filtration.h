@@ -12,8 +12,8 @@ private:
 
 
 	double k_perm(double theta);
-	void calc_lay();
-
+	void calc_lay(double t);
+	void initial();
 
 	const_values cv;
 	mesh &area;
