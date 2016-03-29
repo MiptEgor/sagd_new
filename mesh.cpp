@@ -1,4 +1,3 @@
-#include "attribute.cpp"
 #include "mesh.h"
 #include "const_values.h"
 mesh::mesh(const_values cv)
@@ -17,8 +16,8 @@ mesh::mesh(const_values cv)
 			cell[i].eta_l = cv.eta_l;
 			cell[i].eta_g = cv.eta_g;
 		}
-
 	}
+
 void mesh::print_lay(int n)
 {
 	std::fstream fs;

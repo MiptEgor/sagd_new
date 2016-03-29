@@ -1,5 +1,6 @@
 #ifndef MESH
 #define MESH
+#include "const_values.h"
 #include <vector>
 #include "attribute.h"
 #include <stdio.h>
@@ -16,7 +17,7 @@ public:
 	mesh(const_values cv);
 	void print_lay(int n);
 
-	const int get_n()
+	const int & get_n()
 	{
 		return nx;
 	}

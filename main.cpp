@@ -1,8 +1,6 @@
 #include "const_values.h"
 #include "mesh.h"
-#include "mesh.cpp"
 #include "filtration.h"
-#include "filtration.cpp"
 #include <stdio.h>
 #include <iostream>
 

@@ -2,6 +2,9 @@
 #define FILT
 #include "mesh.h"
 #include "const_values.h"
+#include <iostream>
+#include <iomanip>
+#include <cmath>
 class filtration 
 {
 public:
@@ -15,9 +18,11 @@ private:
 	void calc_lay(double t);
 	void initial();
 
-	const_values cv;
+
 	mesh &area;
+	const_values cv;
 	double h, tau;
+	double lambda_max;
 };
 
 #endif //FILT
