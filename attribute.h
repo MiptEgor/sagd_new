@@ -14,6 +14,7 @@ struct cellAttr
 	double psi_g;
 	double eta_l;
 	double eta_g;
+	double s;
 	//double K_perm;
 	double x;
 	double theta_l();
