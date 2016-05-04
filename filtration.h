@@ -15,8 +15,8 @@ private:
 
 
 	double k_perm(double theta);
-	double kappa(int i);
-	double lambda(int i);
+	double kappa(double s);
+	double lambda(double s);
 	void calc_lay(double t);
 	void initial();
 

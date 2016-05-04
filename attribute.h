@@ -15,6 +15,9 @@ struct cellAttr
 	double eta_l;
 	double eta_g;
 	double s;
+	double a_r;
+	double a_l;
+	double kappa;
 	//double K_perm;
 	double x;
 	double theta_l();

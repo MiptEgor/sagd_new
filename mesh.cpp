@@ -26,12 +26,12 @@ void mesh::print_lay(int n)
 	char buf[128];
 	sprintf(buf,"./out/output%07d.csv",n);
 	fs.open(buf, std::fstream::out);
-	fs << "x, s, W_l" << std::endl;
+	fs << "x, s, W_l, a_r, a_l, kappa" << std::endl;
 	//double z = 0;
 	for (int i = 0; i < nx; ++i)
 	{
 		//z = z + dx * (1./cell[i].theta_s()); //Эйлерова координата
-		fs<<cell[i].x<<"," <<cell[i].s <<"," << face[i].W_l <<std::endl;
+		fs<<cell[i].x<<"," <<cell[i].s <<"," << face[i].W_l <<"," << cell[i].a_r<<"," << cell[i].a_l<<"," <<cell[i].kappa<<"\n";
 	}
 	fs.close();	
 }
