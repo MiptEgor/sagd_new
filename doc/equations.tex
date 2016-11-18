@@ -1,0 +1,116 @@
+\documentclass[12pt,a4paper]{article}
+%\usepackage[cp1251]{inputenc}
+\setlength{\voffset}{-1in}
+\setlength{\topmargin}{20mm}
+\setlength{\headheight}{0mm}
+\setlength{\headsep}{0mm}
+\setlength{\hoffset}{-1in}
+\setlength{\oddsidemargin}{25mm}
+\setlength{\marginparwidth}{0mm}
+\setlength{\marginparsep}{0mm}
+\setlength{\textheight}{247mm}
+\setlength{\textwidth}{165mm}
+\usepackage{indentfirst}
+\usepackage{setspace}
+\usepackage{tabularx}
+\usepackage{graphicx}
+\usepackage{epstopdf}
+\usepackage[utf8]{inputenc}
+\usepackage[T2A]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage[english, russian]{babel}
+\usepackage[hidelinks]{hyperref}
+\newcommand{\pd}[2]{\frac{\partial #1}{\partial #2}}
+
+\linespread{1.5}
+%\captionsetup{width=\textwidth}
+
+%\title{Численное моделирование парогравитационной технологии добычи высоковязких нефтей}
+%\author{Фирсов Егор}
+\begin{document}
+\section{Вывод уравнений}
+Уравнения Непрерывности
+
+\begin{equation}
+\begin{aligned}
+&\pd{\psi_l}{t} + \pd{W_l}{x} = 0\\
+&\pd{\psi_g}{t} + \pd{W_g}{x} = 0
+\end{aligned}
+\end{equation}
+
+
+Уравнения Дарси
+\begin{equation}
+\begin{aligned}
+&W_l = - \frac{k_l}{\eta_l} \left(\pd{P}{z} - \rho_l g\right)\\
+&W_g = - \frac{k_g}{\eta_g} \left(\pd{P}{z} - \rho_g g\right)
+\label{darsi}
+\end{aligned}
+\end{equation}
+
+Условие гидростатического равновесия
+
+\begin{equation}
+\pd{P}{z} = (\rho_l \theta_l + \rho_g \theta_g + \rho_s \theta_s)g
+\end{equation}
+
+Тогда
+\begin{equation}
+W_l =  -\frac{k_g}{\eta_g} \left((\rho_l \theta_l + \rho_g \theta_g + \rho_s \theta_s - \rho_g\right) g
+\end{equation}
+
+С учетом того, что
+\begin{equation}
+\begin{aligned}
+&\theta_s = \frac1{1 + \psi_l + \psi_g}\\ 
+&\theta_l = \frac{\psi_l}{1 + \psi_l + \psi_g}\\
+&\theta_g = \frac{\psi_g}{1 + \psi_l + \psi_g}\\
+&\psi_l = \frac{\theta_l}{\theta_s}\\
+&\psi_g = \frac{\theta_g}{\theta_s}\\
+&k_l = \theta_l^2\\
+&k_g = \theta_g^2\\
+\end{aligned}
+\end{equation}
+
+
+
+Получаем
+\begin{equation}
+\begin{aligned}
+&W_l = - \frac{\psi_l^2}{\eta_l(1 + \psi_l + \psi_g)^3}((\rho_s - \rho_l) + \psi_g(\rho_g - \rho_l))g\\	
+&W_g = - \frac{\psi_g^2}{\eta_g(1 + \psi_l + \psi_g)^3}((\rho_s - \rho_g) + \psi_l(\rho_l - \rho_g))g
+\end{aligned}
+\end{equation}
+
+Можно переписать систему в виде
+\begin{equation}
+\frac{\partial \vec\psi}{\partial t}  = A \frac{\partial \vec\psi}{\partial x}
+\end{equation}
+
+где
+\begin{equation}
+A = \begin{pmatrix}
+ \frac{\partial W_l}{\partial \psi_l} &  \frac{\partial W_l}{\partial \psi_g} \\
+ \frac{\partial W_g}{\partial \psi_l} &  \frac{\partial W_g}{\partial \psi_g} \\
+\end{pmatrix}	
+\end{equation}
+
+\begin{equation}
+\begin{aligned}
+&\pd{W_l}{\psi_l} = -\frac{\psi_l (2 \psi_g + 2 - \psi_l) (\psi_g (\rho_g-\rho_l)-\rho_l+\rho_s)}{\eta_l (\psi_g+\psi_l+1)^4} g\\
+&\pd{W_l}{\psi_g} = -\frac{\psi_l^2 (\rho_g (\psi_l + 1 - 2 \psi_g)+\rho_l (2 \psi_g + 2 - \psi_l)- 3 \rho_s)}{\eta_l (\psi_g + \psi_l + 1)^4}g\\
+&\pd{W_g}{\psi_l} = -\frac{\psi_g^2(\rho_g (2\psi_l + 2 - \psi_g)+\rho_l (\psi_g - 2 \psi_l + 1) - 3 \rho_s)}{\eta_g (\psi_g + \psi_l + 1)^4}g\\
+&\pd{W_g}{\psi_g} = -\frac{\psi_g (2\psi_l + 2 - \psi_g) (\psi_l (\rho_l -\rho_g) - \rho_g + \rho_s)}{\eta_g (\psi_g + \psi_l + 1)^4}g\\
+\end{aligned}
+\end{equation}
+
+Ищем собственные значения
+\begin{equation}
+\lambda^2 - (W_1 + W_4)\lambda + W_1 W_4 - W_3 W_2 = 0	
+\end{equation}
+\begin{equation}
+D = (W_1 + W_4)^2 - 4(W_1 W_4 - W_3 W_2)	
+\end{equation}
+
+
+\end{document}
