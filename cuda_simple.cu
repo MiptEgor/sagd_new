@@ -38,7 +38,7 @@ __device__ float W3(float l, float g, float rg, float rl, float xi)
 }
 __device__ float W4(float l, float g, float rg, float rl, float xi)
 {
-	return + g * (g - 2 * l - 2) * (rg + rg * l - l * rl - 1) / pow(1 + g + l, 4) / xi;
+	return - g * (g - 2 * l - 2) * (rg + rg * l - l * rl - 1) / pow(1 + g + l, 4) / xi;
 } 
 
 __global__ void parallel_calculate(thrust::device_ptr<float> huge_dev, int N, float rg, float rl, float xi, float h)

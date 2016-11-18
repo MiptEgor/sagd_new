@@ -16,8 +16,10 @@ private:
 
 	double k_perm(double theta);
 	double kappa(double s);
+	double D_kappa(double s);
 	double lambda(double s);
 	void calc_lay(double t);
+	void find_max();
 	void initial();
 
 
@@ -25,6 +27,7 @@ private:
 	const_values cv;
 	double h, tau;
 	double lambda_max;
+	double max, min;
 };
 
 #endif //FILT
