@@ -11,21 +11,29 @@ public:
 	filtration(mesh &Mesh, const_values cv);
 
 	void process();
+	double calc_tau();
+	void calc_lay(double t, double tau);
 private:
 
 
 	double k_perm(double theta);
-	double kappa(double s);
-	double D_kappa(double s);
-	double lambda(double s);
-	void calc_lay(double t);
+	
 	void find_max();
 	void initial();
+	double W_ll(double l, double g);
+	double W_lg(double l, double g);
+	double W_gl(double l, double g);
+	double W_gg(double l, double g);
+	double first_lambda(double l, double g);
+	double second_lambda(double l, double g);
+	double W_l(double l, double g);
+	double W_g(double l, double g);
+	
 
 
 	mesh &area;
 	const_values cv;
-	double h, tau;
+	double h;
 	double lambda_max;
 	double max, min;
 };

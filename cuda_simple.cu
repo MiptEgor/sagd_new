@@ -124,9 +124,9 @@ int main(int argc, char const *argv[])
 	thrust::host_vector<float> host(5, 0.f);
 	thrust::device_vector<float> huge_dev(N * N, 0.f);
 	thrust::host_vector<float> huge_host(N * N, 0.f);
-	float rl = 0.3;
-	float rg = 0.02;
-	float xi = 1.e-4;
+	float rl = 1. / 1.4;
+	float rg = 0.5 / 1.4;
+	float xi = 2.e-2;
 	std::cout<<"g"<<" "<<"l"<<" "<<"D"<<" "<<"b"<<" "<<"dd" <<std::endl;
 	parallel_calculate<<<nblocks, block>>>(huge_dev.data(), N, rg, rl, xi, h);
 	thrust::copy(huge_dev.begin(), huge_dev.end(), huge_host.begin());

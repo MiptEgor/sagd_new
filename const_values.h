@@ -10,8 +10,8 @@ const_values()
 	, T0(300.0)					//Температура среды и верхней стенки
 	, T1(500.0)					//Температура нижней стенки		(К)
 	, length(10.0)  			//Длина области в метрах		(м)
-	, time_const ( 8e5)			//Время эксперимента 			(с)
-	, tau(5e0)				//Величина шага по времени		(с) 
+	, time_const ( 4e6)			//Время эксперимента 			(с)
+	, tau(1.e-3)				//Величина шага по времени		(с) 
 	, h(0.01)				//Величина шага по расстоянию	(м)
 	, eta_l(1e-3)
 	//, eta_g(18.3e-5 )					//Коэффициент Вязости			(Па*с)
@@ -31,8 +31,12 @@ const_values()
 	, Tcrit(400)				//Температура в экспоненте для расчечта вязкоти
 	, m(1.)						//Пористость
 	, s(0.5)					//Начальная насыщенность жидкостью
-	, W_bound_left(0)
-	, W_bound_right(0)
+	, psi_l(1.)
+	, psi_g(0.)
+	, W_bound_left_L(0)
+	, W_bound_left_G(4e-6)
+	, W_bound_right_L(0)
+	, W_bound_right_G(0)
 	{
 
 	}
@@ -60,8 +64,12 @@ const_values()
 	double Tcrit;		//Температура в экспоненте для расчечта вязкоти
 	double m;
 	double s;
-	double W_bound_left;
-	double W_bound_right;
+	double psi_l;
+	double psi_g;
+	double W_bound_left_L;
+	double W_bound_left_G;
+	double W_bound_right_L;
+	double W_bound_right_G;
 
 };
 

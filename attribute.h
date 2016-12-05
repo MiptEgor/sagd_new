@@ -20,6 +20,7 @@ struct cellAttr
 	double kappa;
 	//double K_perm;
 	double x;
+	double z;
 	double theta_l();
 	double theta_s();
 	double theta_g();

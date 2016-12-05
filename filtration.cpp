@@ -1,145 +1,157 @@
-	#include "filtration.h"
+#include "filtration.h"
 
 
-	filtration::filtration(mesh &Mesh, const_values cv)
-		:area(Mesh)
-		, cv(cv)
-		, h(cv.h)
-		, tau(cv.tau)
+filtration::filtration(mesh &Mesh, const_values cv)
+:area(Mesh)
+, cv(cv)
+, h(cv.h)
+{
+	find_max();
+	std::cout << min << " " << max<<std::endl;
+}
+double filtration::calc_tau()
+{
+	return h / 2 / lambda_max / 4;
+}
+
+double filtration::k_perm(double theta)
+{
+	return theta * theta;
+}
+
+void filtration::initial()
+{
+	for (int i = 0; i < area.get_n(); ++i)
+	{
+		area(i).psi_l = cv.psi_l;
+		area(i).psi_g = cv.psi_g;
+	}
+
+}
+void filtration::find_max()
+{
+	int N = 1000;
+	max = -1e3;
+	min = 1e3;
+	for (int i = 0; i < N; ++i)
+	{
+		for (int j = 0; j < N-i; ++j)
 		{
-			find_max();
-			std::cout<<max<<" "<<min<<std::endl;
-		}
-
-	double filtration::k_perm(double theta)
-	{
-		return theta * theta;
-	}
-
-	double filtration::kappa(double s)
-	{
-		return k_perm(s) * k_perm((1 - s)) / 
-				(k_perm(s) * cv.eta_g + k_perm((1 - s)) * cv.eta_l);
-
-	}
-	double filtration::D_kappa(double s)	//Производная kappa по s
-	{
-		double kl = k_perm(s);
-		double kg = k_perm((1 - s));
-		double dkl = 2 * s;
-		double dkg = 2 * (s - 1);
-		return ( (dkl * kg + dkg * kl) / (kl * cv.eta_g + kg * cv.eta_l) 
-				- kl * kg * (dkl *cv.eta_g + dkg * cv.eta_l) / pow((kl * cv.eta_g + kg * cv.eta_l), 2) );
-	}
-
-	double filtration::lambda(double s)		//Собственное значение (скорость звука)
-	{
-			return D_kappa(s) * cv.K_abs * (cv.rho_l - cv.rho_g) * cv.gravity;
-	}
-
-	void filtration::find_max()
-	{
-		int N = 1e4;
-		double hs = 1./N;
-		double s = 0;
-		max = -4e5;
-		min = 4e5;
-		for (int i = 0; i < N; ++i)
-		{
-			if (lambda(s) > max)
-				max = lambda(s);
-			if (lambda(s) < min)
-				min = lambda(s);
-			s +=hs;
-		}
-	}
-
-	void filtration::initial()
-	{
-		for (int i = 0; i < area.get_n(); ++i)
-		{
-			area(i).psi_l = 1.;
-			area(i).psi_g = 0.;
-		}
-
-	}
-
-	void filtration::process()
-	{
-		initial();
-		double t = 0;
-		int n = 0;
-		std::cout<<std::setprecision(5);
-		std::cout<<cv.time_const/cv.tau<<std::endl;
-		while (t<cv.time_const)
-		{
-			if (n % 100 == 0)
+			if(i != j)
 			{
-				area.print_lay(n);
-				std::cout<<t<<std::endl;
-			}
-			calc_lay(t);
-			n++;
-			t+=tau;
-			tau = h / 2 / lambda_max / 2  ;
-			if (tau * cv.W_bound_left / h > 0.5) tau = h / cv.W_bound_left / 2 / 2;
+				double theta_l = 1. * i / N;
+				double theta_g = 1. * j / N;
+				double theta_s = 1. - theta_l - theta_g;
+				double psi_l = theta_l / theta_s;
+				double psi_g = theta_g / theta_s;
+				if (first_lambda(psi_l, psi_g) < min)
+					min = first_lambda(psi_l, psi_g);
+				if (second_lambda(psi_l, psi_g) > max)
+					max = second_lambda(psi_l, psi_g);
+			}	
 		}
 	}
+}
+
+//------------------Функции для определения частныъ производных W_l и W_G по psi_l и psi_g
+double filtration::W_ll(double l, double g)
+{
+
+	return - cv.K_abs * l * (2 * g + 2 - l) *(g * (cv.rho_g - cv.rho_l) - cv.rho_l + cv.rho_s) * cv.gravity / cv.eta_l / pow(g + l + 1, 4); 
+}
+
+double filtration::W_lg(double l, double g)
+{
+	return - cv.K_abs * l * l * (cv.rho_g * (l + 1 - 2 * g) + cv.rho_l * (2 * g + 2 - l) - cv.rho_s) * cv.gravity / cv.eta_l / pow(g + l + 1, 4);
+}
+
+double filtration::W_gl(double l, double g)
+{
+	return - cv.K_abs * g * g * (cv.rho_g * (2 * l + 2 - g) + cv.rho_l * (g - 2 * l + 1) - cv.rho_s) * cv.gravity / cv.eta_g / pow(g + l + 1, 4);
+}
+
+double filtration::W_gg(double l, double g)
+{
+	return -cv.K_abs * g * (2 * l + 2 - g) * (l * (cv.rho_l - cv.rho_g) - cv.rho_g + cv.rho_s) * cv.gravity / cv.eta_g / pow(g + l + 1, 4);
+}
+
+double filtration::first_lambda(double l, double g)
+{	
+	double D = pow(W_ll(l, g) + W_gg(l, g), 2) - 4 * (W_ll(l, g) * W_gg(l, g) - W_lg(l, g) * W_gl(l, g));
+	return (W_ll(l, g) + W_gg(l, g) - std::sqrt(D)) / 2;	
+}
+
+double filtration::second_lambda(double l, double g)
+{	
+	double D = pow(W_ll(l, g) + W_gg(l, g), 2) - 4 * (W_ll(l, g) * W_gg(l, g) - W_lg(l, g) * W_gl(l, g));
+	return (W_ll(l, g) + W_gg(l, g) + std::sqrt(D)) / 2;	
+}
+
+double filtration::W_l(double l, double g)
+{
+	return - l * l / cv.eta_l / pow(1 + l + g, 3) * cv.K_abs * ((cv.rho_s - cv.rho_l) + g * (cv.rho_g - cv.rho_l)) * cv.gravity;
+}
+
+double filtration::W_g(double l, double g)
+{
+	return - g * g / cv.eta_g / pow(1 + l + g, 3) * cv.K_abs * ((cv.rho_s - cv.rho_g) + l * (cv.rho_l - cv.rho_g)) * cv.gravity;
+}
 
 
-	void filtration::calc_lay(double t)
+void filtration::calc_lay(double t, double tau)
+{
+
+	area.get_left(0).W_l = cv.W_bound_left_L;
+	area.get_left(0).W_g = cv.W_bound_left_G;
+	area.get_right(area.get_n() - 1).W_l = cv.W_bound_right_L;
+	area.get_right(area.get_n() - 1).W_g = cv.W_bound_right_G;
+	
+//----------Определение максимального собственного значения (Для условия Куранта)----------------------
+	lambda_max = 0;
+	for (int i = 0; i < area.get_n(); ++i)
 	{
-		area.get_left(0).W_l = cv.W_bound_left;
-		area.get_right(area.get_n() - 1).W_l = cv.W_bound_right;
-		double a = 0;
-		lambda_max = 0;
-		double min_lambda = 1e10;
-		double max_lambda = 0;
-		double ds = 1. / area.get_n();
-		for (int i = 0; i < area.get_n(); ++i)
-		{			//Определение максимального собственного значения (Для условия Куранта)
-			a = lambda(i);
-			if (max_lambda < a) max_lambda = a;
-			if (min_lambda > a) min_lambda = a;
-			if (lambda(ds * i) > lambda_max) lambda_max = lambda(ds * i);
-		}
+		if (std::abs(first_lambda(area(i).psi_l, area(i).psi_g)) > lambda_max) lambda_max = std::abs(first_lambda(area(i).psi_l, area(i).psi_g));
+		if (std::abs(second_lambda(area(i).psi_l, area(i).psi_g)) > lambda_max) lambda_max = std::abs(second_lambda(area(i).psi_l, area(i).psi_g));
+	}
 
-		for (int i = 0; i < area.get_n() - 1; ++i)
+	for (int i = 0; i < area.get_n() - 1; ++i)
+	{
+		//double a_r = std::max(second_lambda(area(i).psi_l, area(i).psi_g), second_lambda(area(i+1).psi_l, area(i+1).psi_g));
+		//double a_l = std::min(first_lambda(area(i).psi_l, area(i).psi_g), first_lambda(area(i+1).psi_l, area(i+1).psi_g));
+		double a_r = max;
+		double a_l = min;
+		area(i).a_r = a_r;
+		area(i).a_l = a_l;
+		
+		if (a_r * a_l > 0)
 		{
-			double a_r = std::max(lambda(area(i+1).s), lambda(area(i).s));
-			double a_l = std::min(lambda(area(i+1).s), lambda(area(i).s));
-			area(i).a_r = a_r;
-			area(i).a_l = a_l;
-
-			area(i).kappa = kappa(area(i).s) * cv.K_abs * (cv.rho_l - cv.rho_g) * cv.gravity;
-			if (a_r * a_l >= 0)
+			if (a_r > 0) 
 			{
-				if (a_r > 0) 
-					area.get_right(i).W_l = kappa(area(i).s) * cv.K_abs * (cv.rho_l - cv.rho_g) * cv.gravity;
-				else 
-					area.get_right(i).W_l = kappa(area(i+1).s) * cv.K_abs * (cv.rho_l - cv.rho_g) * cv.gravity;
+				area.get_right(i).W_l = W_l(area(i).psi_l, area(i).psi_g);
+				area.get_right(i).W_g = W_g(area(i).psi_l, area(i).psi_g);
 			}
-			else
-			{//-----Вторая часть не обязательна. Почти ничего не меняет
-				if(std::abs(area(i).s - area(i+1).s) > 0.4)
-					area.get_right(i).W_l = ( (kappa(area(i).s) * max - kappa(area(i+1).s) * min) * cv.K_abs * (cv.rho_l - cv.rho_g) * cv.gravity 
-							+ max * min * (area(i+1).s - area(i).s) ) / (max - min);
-				else
-					area.get_right(i).W_l = ( (kappa(area(i).s) * a_r - kappa(area(i+1).s) * a_l) * cv.K_abs * (cv.rho_l - cv.rho_g) * cv.gravity 
-							+ a_l * a_r * (area(i+1).s - area(i).s) ) / (a_r - a_l);
-			
+			else 
+			{
+				area.get_right(i).W_l = W_l(area(i+1).psi_l, area(i+1).psi_g);
+				area.get_right(i).W_g = W_g(area(i+1).psi_l, area(i+1).psi_g);
 			}
-			if (((area(i+1).s == 1.)&(area(i).s == 0.))|((area(i).s == 1.)&(area(i+1).s == 0.)))
-				area.get_right(i).W_l = ( (kappa(area(i).s) * max - kappa(area(i+1).s) * min) * cv.K_abs * (cv.rho_l - cv.rho_g) * cv.gravity 
-						+ max * min * (area(i+1).s - area(i).s) ) / (max - min);
+		
 		}
-
-		for (int i = 0; i < area.get_n(); ++i)
+		else
 		{
-			area(i).s = area(i).s - (area.get_right(i).W_l - area.get_left(i).W_l) / h * tau / cv.m;
+			area.get_right(i).W_l =( W_l(area(i).psi_l, area(i).psi_g) * max - W_l(area(i+1).psi_l, area(i+1).psi_g) * min + 
+				max * min * (area(i+1).psi_l - area(i).psi_l) ) / (max - min);
 
-			//Определение максимального собственного значения
-			//a = std::abs(lambda(area(i).s));
-			//if (lambda_max < a) lambda_max = a;
+			area.get_right(i).W_g =( W_g(area(i).psi_l, area(i).psi_g) * max - W_g(area(i+1).psi_l, area(i+1).psi_g) * min + 
+				max * min * (area(i+1).psi_g - area(i).psi_g) ) / (max - min);
 		}
 	}
+
+	for (int i = 0; i < area.get_n(); ++i)
+	{
+		
+		area(i).psi_l = area(i).psi_l - (area.get_right(i).W_l - area.get_left(i).W_l) / h * tau;
+		
+		area(i).psi_g = area(i).psi_g - (area.get_right(i).W_g - area.get_left(i).W_g) / h * tau;
+	}
+}
