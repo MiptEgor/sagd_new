@@ -6,14 +6,16 @@
 #include <iomanip>
 #include <cmath>
 #include "filtration.h"
+#include "energy.h"
 
 class integrator
 {
 	mesh &area;
 	filtration &Filtr;
+	energy &energy_block;
 	const_values cv;
 public:
-	integrator(mesh &Mesh, const_values CV, filtration &Filtration);
+	integrator(mesh &Mesh, const_values CV, filtration &Filtration, energy &Energy);
 	void process();
 
 };

@@ -16,7 +16,7 @@ private:
 public:
 	mesh(const_values cv);
 	void print_lay(int n);
-
+	void update();
 	const int & get_n()
 	{
 		return nx;

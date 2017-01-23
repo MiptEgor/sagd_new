@@ -9,6 +9,7 @@ filtration::filtration(mesh &Mesh, const_values cv)
 	find_max();
 	std::cout << min << " " << max<<std::endl;
 }
+
 double filtration::calc_tau()
 {
 	return h / 2 / lambda_max / 4;
@@ -28,6 +29,7 @@ void filtration::initial()
 	}
 
 }
+
 void filtration::find_max()
 {
 	int N = 1000;
@@ -52,8 +54,7 @@ void filtration::find_max()
 		}
 	}
 }
-
-//------------------Функции для определения частныъ производных W_l и W_G по psi_l и psi_g
+//------------------Функции для определения частныъ производных W_l и W_g по psi_l и psi_g
 double filtration::W_ll(double l, double g)
 {
 
@@ -97,10 +98,8 @@ double filtration::W_g(double l, double g)
 	return - g * g / cv.eta_g / pow(1 + l + g, 3) * cv.K_abs * ((cv.rho_s - cv.rho_g) + l * (cv.rho_l - cv.rho_g)) * cv.gravity;
 }
 
-
 void filtration::calc_lay(double t, double tau)
 {
-
 	area.get_left(0).W_l = cv.W_bound_left_L;
 	area.get_left(0).W_g = cv.W_bound_left_G;
 	area.get_right(area.get_n() - 1).W_l = cv.W_bound_right_L;
@@ -135,7 +134,6 @@ void filtration::calc_lay(double t, double tau)
 				area.get_right(i).W_l = W_l(area(i+1).psi_l, area(i+1).psi_g);
 				area.get_right(i).W_g = W_g(area(i+1).psi_l, area(i+1).psi_g);
 			}
-		
 		}
 		else
 		{
@@ -147,6 +145,7 @@ void filtration::calc_lay(double t, double tau)
 		}
 	}
 
+	area.update();
 	for (int i = 0; i < area.get_n(); ++i)
 	{
 		

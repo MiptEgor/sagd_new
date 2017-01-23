@@ -1,8 +1,9 @@
 #include "integrator.h"
 
-integrator::integrator(mesh &Mesh, const_values CV, filtration &Filtration)
+integrator::integrator(mesh &Mesh, const_values CV, filtration &Filtration, energy &Energy)
 	: area(Mesh)
 	, Filtr(Filtration)
+	, energy_block(Energy)
 	, cv(CV)
 	{};
 
@@ -15,12 +16,14 @@ void integrator::process()
 	//std::cout<<cv.time_const/cv.tau<<std::endl;
 	while (t<cv.time_const)
 	{
-		if (n % 200 == 0)
+		if (n % 100 == 0)
 		{
 			area.print_lay(n);
 			std::cout<<t<<std::endl;
 		}
 		Filtr.calc_lay(t, tau);
+		if (n!=0) energy_block.calc_lay(t, tau);
+
 		n++;
 		t+=tau;
 

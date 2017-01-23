@@ -5,6 +5,9 @@ struct faceAttr
 {
 	double W_l;
 	double W_g;
+	double Q_l;
+	double Q_g;
+	double Q_lambda;
 };
 
 struct cellAttr
@@ -24,6 +27,8 @@ struct cellAttr
 	double theta_l();
 	double theta_s();
 	double theta_g();
+	double old_l;
+	double old_g;
 };
 
 #endif //CELLATTR
