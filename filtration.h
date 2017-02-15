@@ -15,7 +15,7 @@ public:
 	void calc_lay(double t, double tau);
 private:
 
-
+	double viscosity(double T);
 	double k_perm(double theta);
 	
 	void find_max();
@@ -26,8 +26,8 @@ private:
 	double W_gg(double l, double g);
 	double first_lambda(double l, double g);
 	double second_lambda(double l, double g);
-	double W_l(double l, double g);
-	double W_g(double l, double g);
+	double W_l(double l, double g, double eta);
+	double W_g(double l, double g, double eta);
 	
 
 

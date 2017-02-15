@@ -10,6 +10,10 @@ filtration::filtration(mesh &Mesh, const_values cv)
 	std::cout << min << " " << max<<std::endl;
 }
 
+double filtration::viscosity(double T)
+{
+	return std::exp(-cv.alpha * (T - cv.Tcrit));
+}
 double filtration::calc_tau()
 {
 	return h / 2 / lambda_max / 4;
@@ -88,18 +92,24 @@ double filtration::second_lambda(double l, double g)
 	return (W_ll(l, g) + W_gg(l, g) + std::sqrt(D)) / 2;	
 }
 
-double filtration::W_l(double l, double g)
+double filtration::W_l(double l, double g, double eta)
 {
-	return - l * l / cv.eta_l / pow(1 + l + g, 3) * cv.K_abs * ((cv.rho_s - cv.rho_l) + g * (cv.rho_g - cv.rho_l)) * cv.gravity;
+	return - l * l / eta / pow(1 + l + g, 3) * cv.K_abs * ((cv.rho_s - cv.rho_l) + g * (cv.rho_g - cv.rho_l)) * cv.gravity;
 }
 
-double filtration::W_g(double l, double g)
+double filtration::W_g(double l, double g, double eta)
 {
-	return - g * g / cv.eta_g / pow(1 + l + g, 3) * cv.K_abs * ((cv.rho_s - cv.rho_g) + l * (cv.rho_l - cv.rho_g)) * cv.gravity;
+	return - g * g / eta / pow(1 + l + g, 3) * cv.K_abs * ((cv.rho_s - cv.rho_g) + l * (cv.rho_l - cv.rho_g)) * cv.gravity;
 }
 
 void filtration::calc_lay(double t, double tau)
 {
+	for (int i = 0; i < area.get_n(); ++i)
+	{
+		area(i).eta_l = cv.eta_l; //viscosity(area(i).T);
+		area(i).eta_g = cv.eta_g; //0.1 * viscosity(area(i).T);
+	}
+
 	area.get_left(0).W_l = cv.W_bound_left_L;
 	area.get_left(0).W_g = cv.W_bound_left_G;
 	area.get_right(area.get_n() - 1).W_l = cv.W_bound_right_L;
@@ -126,22 +136,22 @@ void filtration::calc_lay(double t, double tau)
 		{
 			if (a_r > 0) 
 			{
-				area.get_right(i).W_l = W_l(area(i).psi_l, area(i).psi_g);
-				area.get_right(i).W_g = W_g(area(i).psi_l, area(i).psi_g);
+				area.get_right(i).W_l = W_l(area(i).psi_l, area(i).psi_g, area(i).eta_l);
+				area.get_right(i).W_g = W_g(area(i).psi_l, area(i).psi_g, area(i).eta_g);
 			}
 			else 
 			{
-				area.get_right(i).W_l = W_l(area(i+1).psi_l, area(i+1).psi_g);
-				area.get_right(i).W_g = W_g(area(i+1).psi_l, area(i+1).psi_g);
+				area.get_right(i).W_l = W_l(area(i+1).psi_l, area(i+1).psi_g, area(i).eta_l);
+				area.get_right(i).W_g = W_g(area(i+1).psi_l, area(i+1).psi_g, area(i).eta_g);
 			}
 		}
 		else
 		{
-			area.get_right(i).W_l =( W_l(area(i).psi_l, area(i).psi_g) * max - W_l(area(i+1).psi_l, area(i+1).psi_g) * min + 
-				max * min * (area(i+1).psi_l - area(i).psi_l) ) / (max - min);
+			area.get_right(i).W_l =( W_l(area(i).psi_l, area(i).psi_g, area(i).eta_l) * a_r - W_l(area(i+1).psi_l, area(i+1).psi_g, area(i).eta_l) * a_l + 
+				a_r * a_l * (area(i+1).psi_l - area(i).psi_l) ) / (a_r - a_l);
 
-			area.get_right(i).W_g =( W_g(area(i).psi_l, area(i).psi_g) * max - W_g(area(i+1).psi_l, area(i+1).psi_g) * min + 
-				max * min * (area(i+1).psi_g - area(i).psi_g) ) / (max - min);
+			area.get_right(i).W_g =( W_g(area(i).psi_l, area(i).psi_g, area(i).eta_g) * a_r - W_g(area(i+1).psi_l, area(i+1).psi_g, area(i).eta_g) * a_l + 
+				a_r * a_l * (area(i+1).psi_g - area(i).psi_g) ) / (a_r - a_l);
 		}
 	}
 

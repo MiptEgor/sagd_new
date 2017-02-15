@@ -39,7 +39,7 @@ void mesh::print_lay(int n)
 	char buf[128];
 	sprintf(buf,"./out/output%07d.csv",n);
 	fs.open(buf, std::fstream::out);
-	fs << "x, z, theta_l, theta_g, old_l, old_g, psi_l, psi_g, W_l, W_g, T, Q_l, Q_g, Q_lambda" << std::endl;
+	fs << "x, z, theta_l, theta_g, psi_l, psi_g, eta_l, W_l, W_g, T, Q_l, Q_g, Q_lambda" << std::endl;
 	cell[0].z = 0;
 	for (int i = 1; i < nx; ++i)
 	{
@@ -51,7 +51,7 @@ void mesh::print_lay(int n)
 	for (int i = 0; i < nx; i+=5)
 	{
 		fs<<cell[i].x<<"," << cell[i].z << "," <<cell[i].theta_l() <<"," <<cell[i].theta_g()<<"," 
-		<< cell[i].old_l<<"," << cell[i].old_g<<"," << cell[i].psi_l<<"," << cell[i].psi_g<<"," 
+		<< cell[i].psi_l<<"," << cell[i].psi_g<<"," << cell[i].eta_l<<"," 
 		<<face[i].W_l<<"," <<face[i].W_g<<"," <<cell[i].T <<"," <<face[i].Q_l <<"," <<face[i].Q_g <<"," <<face[i].Q_lambda <<"\n";
 	}
 	fs.close();	
