@@ -1,0 +1,7 @@
+out
+build
+eq_test
+*.log
+*.aux
+*.out
+*.synctex.gz

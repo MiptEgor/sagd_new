@@ -131,31 +131,54 @@ void filtration::calc_lay(double t, double tau)
 		double a_l = min;
 		area(i).a_r = a_r;
 		area(i).a_l = a_l;
+
+
 		
 		if (a_r * a_l > 0)
 		{
 			if (a_r > 0) 
 			{
-				area.get_right(i).W_l = W_l(area(i).psi_l, area(i).psi_g, area(i).eta_l);
-				area.get_right(i).W_g = W_g(area(i).psi_l, area(i).psi_g, area(i).eta_g);
+				area.get_right(i).W_l = W_l(area(i).old_l, area(i).old_g, area(i).eta_l);
+				area.get_right(i).W_g = W_g(area(i).old_l, area(i).old_g, area(i).eta_g);
 			}
 			else 
 			{
-				area.get_right(i).W_l = W_l(area(i+1).psi_l, area(i+1).psi_g, area(i).eta_l);
-				area.get_right(i).W_g = W_g(area(i+1).psi_l, area(i+1).psi_g, area(i).eta_g);
+				area.get_right(i).W_l = W_l(area(i+1).old_l, area(i+1).old_g, area(i).eta_l);
+				area.get_right(i).W_g = W_g(area(i+1).old_l, area(i+1).old_g, area(i).eta_g);
 			}
 		}
 		else
 		{
-			area.get_right(i).W_l =( W_l(area(i).psi_l, area(i).psi_g, area(i).eta_l) * a_r - W_l(area(i+1).psi_l, area(i+1).psi_g, area(i).eta_l) * a_l + 
-				a_r * a_l * (area(i+1).psi_l - area(i).psi_l) ) / (a_r - a_l);
+			area.get_right(i).W_l =( W_l(area(i).old_l, area(i).old_g, area(i).eta_l) * a_r - W_l(area(i+1).old_l, area(i+1).old_g, area(i).eta_l) * a_l + 
+				a_r * a_l * (area(i+1).old_l - area(i).old_l) ) / (a_r - a_l);
 
-			area.get_right(i).W_g =( W_g(area(i).psi_l, area(i).psi_g, area(i).eta_g) * a_r - W_g(area(i+1).psi_l, area(i+1).psi_g, area(i).eta_g) * a_l + 
-				a_r * a_l * (area(i+1).psi_g - area(i).psi_g) ) / (a_r - a_l);
+			area.get_right(i).W_g =( W_g(area(i).old_l, area(i).old_g, area(i).eta_g) * a_r - W_g(area(i+1).old_l, area(i+1).old_g, area(i).eta_g) * a_l + 
+				a_r * a_l * (area(i+1).old_g - area(i).old_g) ) / (a_r - a_l);
 		}
+	
+		area(i).psi_l = area(i).psi_l - (area.get_right(i).W_l - area.get_left(i).W_l) / h * tau;
+		
+		area(i).psi_g = area(i).psi_g - (area.get_right(i).W_g - area.get_left(i).W_g) / h * tau;
+
+		//----------------Проверка на предельность объемной доли твердой фазы--------------------
+		if (area(i).theta_s() > cv.theta_crit)
+		{
+			double c = ( 1. / cv.theta_crit  - 1) / (area(i).psi_l + area(i).psi_g);
+			area(i).psi_l = area(i).psi_l * c;
+			area(i).psi_g = area(i).psi_g * c;
+			area.get_right(i).W_l = area.get_left(i).W_l + (area(i).old_l - area(i).psi_l) * h / tau;
+			area.get_right(i).W_g = area.get_left(i).W_g + (area(i).old_g - area(i).psi_g) * h / tau;
+			//std::cout<<"EPTA"<<std::endl;
+		}
+
 	}
+	area(area.get_n() - 1).psi_l = area(area.get_n() - 1).psi_l - (area.get_right(area.get_n() - 1).W_l - area.get_left(area.get_n() - 1).W_l) / h * tau;
+		
+	area(area.get_n() - 1).psi_g = area(area.get_n() - 1).psi_g - (area.get_right(area.get_n() - 1).W_g - area.get_left(area.get_n() - 1).W_g) / h * tau;
+	
 
 	area.update();
+	/*
 	for (int i = 0; i < area.get_n(); ++i)
 	{
 		
@@ -163,4 +186,5 @@ void filtration::calc_lay(double t, double tau)
 		
 		area(i).psi_g = area(i).psi_g - (area.get_right(i).W_g - area.get_left(i).W_g) / h * tau;
 	}
+	*/
 }
