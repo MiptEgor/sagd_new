@@ -39,7 +39,7 @@ void mesh::print_lay(int n)
 	char buf[128];
 	sprintf(buf,"./out/output%07d.csv",n);
 	fs.open(buf, std::fstream::out);
-	fs << "x, z, theta_l, theta_g, psi_l, psi_g, eta_l, W_l, W_g, T, Q_l, Q_g, Q_lambda" << std::endl;
+	fs << "x, z, theta_l, theta_g, theta_s, eta_l, lambda_first, lambda_second, W_l, W_g, T, psi_l, psi_l_old, psi_g, a_r, a_l" << std::endl;
 	cell[0].z = 0;
 	for (int i = 1; i < nx; ++i)
 	{
@@ -48,11 +48,11 @@ void mesh::print_lay(int n)
 		cell[i].z = cell[i-1].z + dx * (1./cell[i].theta_s());
 	}
 
-	for (int i = 0; i < nx; i+=5)
+	for (int i = 0; i < nx; i+=2)
 	{
-		fs<<cell[i].x<<"," << cell[i].z << "," <<cell[i].theta_l() <<"," <<cell[i].theta_g()<<"," 
-		<< cell[i].psi_l<<"," << cell[i].psi_g<<"," << cell[i].eta_l<<"," 
-		<<face[i].W_l<<"," <<face[i].W_g<<"," <<cell[i].T <<"," <<face[i].Q_l <<"," <<face[i].Q_g <<"," <<face[i].Q_lambda <<"\n";
+		fs<<cell[i].x<<"," << cell[i].z << "," <<cell[i].theta_l() <<"," <<cell[i].theta_g()<<","
+		<<cell[i].theta_s()<<"," << cell[i].eta_l<<"," <<cell[i].lambda_first<<"," << cell[i].lambda_second<<","
+		<<face[i].W_l<<"," <<face[i].W_g<<"," <<cell[i].T <<"," <<cell[i].psi_l <<"," <<cell[i].old_l <<"," <<cell[i].psi_g <<"," <<cell[i].a_r <<"," <<cell[i].a_l <<"\n";
 	}
 	fs.close();	
 }

@@ -16,7 +16,7 @@ void integrator::process()
 	//std::cout<<cv.time_const/cv.tau<<std::endl;
 	while (t<cv.time_const)
 	{
-		if (n % 200 == 0)
+		if (n % 10 == 0)
 		{
 			area.print_lay(n);
 			std::cout<<t<<std::endl;

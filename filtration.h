@@ -1,5 +1,6 @@
 #ifndef FILT 
 #define FILT
+#include <assert.h>
 #include "mesh.h"
 #include "const_values.h"
 #include <iostream>
@@ -29,7 +30,7 @@ private:
 	double W_l(double l, double g, double eta);
 	double W_g(double l, double g, double eta);
 	
-
+	void test_D(double l, double g, int i, double t);
 
 	mesh &area;
 	const_values cv;

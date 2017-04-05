@@ -5,12 +5,13 @@
 #include "integrator.h"
 #include <stdio.h>
 #include <iostream>
-
+ #include <fenv.h>
 
 
 
 int main(int argc, char const *argv[])
 {
+	//feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
 	const_values CV;
 	mesh Mesh(CV);
 	filtration filtr_block(Mesh, CV);

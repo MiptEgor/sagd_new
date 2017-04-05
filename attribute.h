@@ -29,6 +29,8 @@ struct cellAttr
 	double theta_g();
 	double old_l;
 	double old_g;
+	double lambda_first;
+	double lambda_second;
 };
 
 #endif //CELLATTR
